@@ -1,0 +1,84 @@
+---
+- hosts: all
+  vars:
+    env: "{{ ENVIRONMENT }}"
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  tasks:
+        - name: Add specified repository into sources list.
+          apt_repository: 
+            repo: deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main
+            state: present
+            filename: "tomcat8"
+
+        - name: add source repository into source list
+          apt_repository:
+            repo: deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main
+            state: present
+            filename: "tomcat8"
+
+        - name: Add keyserver 
+          apt_key: 
+            keyserver: keyserver.ubuntu.com
+            id: EEA14886
+            state: present
+
+        - name: Run the equivalent of "apt-get update" as a separate step
+          apt:
+            update_cache: yes
+
+        - name: Download packages
+          apt: 
+            name: tomcat8
+            state: latest
+
+        - name: Deploy war
+          copy: 
+            src: /data/sample.war
+            dest: /var/lib/tomcat8/webapps/sample.war
+
+        - name: Set variable for PROD
+          copy:
+            src: /data/setenv_prod.sh
+            dest: /usr/share/tomcat8/bin/setenv.sh
+            owner: root
+            group: root
+            mode: 0755
+          when: env == "PROD"
+
+
+        - name: Set variable for DEV
+          copy:
+            src: /data/setenv_dev.sh
+            dest: /usr/share/tomcat8/bin/setenv.sh
+            owner: root
+            group: root
+            mode: 0755
+          when: env == "DEV"
+
+         
+#        - name: Set variable for PROD
+#          copy: 
+#            content: |
+#              export CATALINA_OPTS="$CATALINA_OPTS -Xmx512m"
+#            dest: /usr/share/tomcat8/bin/setenv.sh
+#          owner: root
+#          group: root
+#          mode: 0755
+#          when: env == "PROD"
+
+#        - name: Set variable for DEV
+#          copy:   
+#            content: |
+#              export CATALINA_OPTS="$CATALINA_OPTS -Xmx256m"
+#            dest: /usr/share/tomcat8/bin/setenv.sh
+#          owner: root
+#          group: root
+#          mode: 0755
+#          when: env == "DEV"
+
+        - name: Start Tomcat
+          service: 
+            name: tomcat8
+            state: started
+            enabled: yes
