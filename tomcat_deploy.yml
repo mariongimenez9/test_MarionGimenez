@@ -37,45 +37,45 @@
             src: /data/sample.war
             dest: /var/lib/tomcat8/webapps/sample.war
 
+#        - name: Set variable for PROD
+#          copy:
+#            src: /data/setenv_prod.sh
+#            dest: /usr/share/tomcat8/bin/setenv.sh
+#            owner: root
+#            group: root
+#            mode: 0755
+#          when: env == "PROD"
+
+
+#        - name: Set variable for DEV
+#          copy:
+#            src: /data/setenv_dev.sh
+#            dest: /usr/share/tomcat8/bin/setenv.sh
+#            owner: root
+#            group: root
+#            mode: 0755
+#          when: env == "DEV"
+
+         
         - name: Set variable for PROD
-          copy:
-            src: /data/setenv_prod.sh
+          copy: 
+            content: |
+              export CATALINA_OPTS="$CATALINA_OPTS -Xmx512m"
             dest: /usr/share/tomcat8/bin/setenv.sh
             owner: root
             group: root
             mode: 0755
           when: env == "PROD"
 
-
         - name: Set variable for DEV
-          copy:
-            src: /data/setenv_dev.sh
+          copy:   
+            content: |
+              export CATALINA_OPTS="$CATALINA_OPTS -Xmx256m"
             dest: /usr/share/tomcat8/bin/setenv.sh
             owner: root
             group: root
             mode: 0755
           when: env == "DEV"
-
-         
-#        - name: Set variable for PROD
-#          copy: 
-#            content: |
-#              export CATALINA_OPTS="$CATALINA_OPTS -Xmx512m"
-#            dest: /usr/share/tomcat8/bin/setenv.sh
-#          owner: root
-#          group: root
-#          mode: 0755
-#          when: env == "PROD"
-
-#        - name: Set variable for DEV
-#          copy:   
-#            content: |
-#              export CATALINA_OPTS="$CATALINA_OPTS -Xmx256m"
-#            dest: /usr/share/tomcat8/bin/setenv.sh
-#          owner: root
-#          group: root
-#          mode: 0755
-#          when: env == "DEV"
 
         - name: Start Tomcat
           service: 
